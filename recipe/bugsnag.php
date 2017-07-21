@@ -10,14 +10,16 @@ namespace Deployer;
 desc('Notifying Bugsnag of deployment');
 task('deploy:bugsnag', function () {
     global $php_errormsg;
+    $revision = trim(runLocally('git log -n 1 --format="%h"'));
+    cd('{{release_path}}');
 
     $defaultConfig = [
         'api_key'       => null,
-        'release_stage' => get('stages')[0],
+        'release_stage' => run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs'),
         'repository'    => get('repository'),
         'provider'      => null,
         'branch'        => get('branch'),
-        'revision'      => trim(runLocally('git log -n 1 --format="%h"')),
+        'revision'      => $revision,
         'app_version'   => null,
     ];
 

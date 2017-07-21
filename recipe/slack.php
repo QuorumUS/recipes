@@ -22,12 +22,22 @@ task('deploy:slack', function () {
 
     $user = trim(runLocally('git config --get user.name'));
     $revision = trim(runLocally('git log -n 1 --format="%h"'));
-    $stage = '';
+    cd('{{release_path}}');
+    $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs');
     $branch = get('branch');
+
     if (input()->hasOption('branch')) {
         $inputBranch = input()->getOption('branch');
         if (!empty($inputBranch)) {
             $branch = $inputBranch;
+        }
+    }
+
+    $tag = '';
+    if (input()->hasOption('tag')) {
+        $inputTag = input()->getOption('tag');
+        if (!empty($inputTag)) {
+            $tag = $inputTag;
         }
     }
     $defaultConfig = [
@@ -90,10 +100,12 @@ task('deploy:slack', function () {
 
     $messagePlaceHolders = [
         //'{{release_path}}' => get('release_path'),
+
         '{{host}}' => get('hostname'),
         '{{stage}}' => $stage,
         '{{user}}' => $user,
         '{{branch}}' => $branch,
+        '{{tag}}' => $tag,
         '{{app_name}}' => isset($config['app']) ? $config['app'] : 'app-name',
     ];
     $config['message'] = strtr($config['message'], $messagePlaceHolders);
@@ -107,7 +119,7 @@ task('deploy:slack', function () {
         'pretty' => true,
     ];
 
-    foreach (['unset_text' => 'text', 'icon_url' => 'icon_emoji'] as $set => $unset) {
+    foreach (['message' => 'text', 'icon_url' => 'icon_emoji'] as $set => $unset) {
         if (isset($config[$set])) {
             unset($urlParams[$unset]);
         }
@@ -129,7 +141,7 @@ task('deploy:slack', function () {
     if (!$result) {
         throw new \RuntimeException($php_errormsg);
     }
-var_dump($result);
+
     $response = @json_decode($result);
 
     if (!$response || isset($response->error)) {
