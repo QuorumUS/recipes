@@ -10,12 +10,7 @@ namespace Deployer;
 set('newrelic_deploy_user', function() {
     return trim(runLocally('git config user.name'));
 });
-set('newrelic_deploy_revision', function() {
-    return trim(runLocally('git log -n 1 --format="%h"'));
-});
-set('newrelic_deploy_description', function() {
-    return trim(runLocally('git log -n 1 --format="%an: %s" | tr \'"\' "\'"'));
-});
+
 
 desc('Notifying New Relic of deployment');
 task('deploy:newrelic', function () {
@@ -33,11 +28,15 @@ task('deploy:newrelic', function () {
     ) {
         throw new \RuntimeException("<comment>Please configure New Relic:</comment> <info>set('newrelic', array('api_key' => 'xad3...', 'application_id' => '12873'));</info>");
     }
+    
+    cd('{{release_path}}');
 
+    $revision = trim(run('git log -n 1 --format="%h"'));
+    $description = trim(run('git log -n 1 --format="%an: %s" | tr \'"\' "\'"'));
     $deploy_data = [
         'user' => get('newrelic_deploy_user'),
-        'revision' => get('newrelic_deploy_revision'),
-        'description' => get('newrelic_deploy_description'),
+        'revision' => $revision,
+        'description' => $description,
     ];
 
     $options = ['http' => [
