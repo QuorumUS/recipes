@@ -15,7 +15,7 @@ set('newrelic_deploy_user', function() {
 desc('Notifying New Relic of deployment');
 task('deploy:newrelic', function () {
     global $php_errormsg;
-
+    $user = get('newrelic_deploy_user');
     $config = get('newrelic', []);
 
     // Notify existing users of upgrade.
@@ -28,13 +28,13 @@ task('deploy:newrelic', function () {
     ) {
         throw new \RuntimeException("<comment>Please configure New Relic:</comment> <info>set('newrelic', array('api_key' => 'xad3...', 'application_id' => '12873'));</info>");
     }
-    
+
     cd('{{release_path}}');
 
     $revision = trim(run('git log -n 1 --format="%h"'));
     $description = trim(run('git log -n 1 --format="%an: %s" | tr \'"\' "\'"'));
     $deploy_data = [
-        'user' => get('newrelic_deploy_user'),
+        'user' => $user,
         'revision' => $revision,
         'description' => $description,
     ];
