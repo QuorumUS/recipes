@@ -21,10 +21,11 @@ task('deploy:slack', function () {
     global $php_errormsg;
 
     $user = trim(runLocally('git config --get user.name'));
-    $revision = trim(runLocally('git log -n 1 --format="%h"'));
+
     cd('{{release_path}}');
-    $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs');
-    $branch = get('branch');
+    $revision = trim(run('git log -n 1 --format="%h"'));
+    $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs')->toString();
+    $branch = null;
 
     if (input()->hasOption('branch')) {
         $inputBranch = input()->getOption('branch');
@@ -33,13 +34,15 @@ task('deploy:slack', function () {
         }
     }
 
-    $tag = '';
+    $tag = null;
     if (input()->hasOption('tag')) {
         $inputTag = input()->getOption('tag');
         if (!empty($inputTag)) {
             $tag = $inputTag;
         }
     }
+    $branch = $branch ?? $tag;
+
     $defaultConfig = [
         'channel' => '#general',
         'icon' => ':sunny:',
@@ -70,7 +73,7 @@ task('deploy:slack', function () {
                         'short' => true,
                     ],
                     [
-                        'title' => 'Branch',
+                        'title' => 'Branch/Tag',
                         'value' => $branch,
                         'short' => true,
                     ],
@@ -96,18 +99,17 @@ task('deploy:slack', function () {
         throw new \RuntimeException("Please configure new slack: set('slack', ['token' => 'xoxp...', 'team' => 'team', 'channel' => '#channel', 'messsage' => 'message to send']);");
     }
 
-    $user = 'anton';trim(run('whoami'));
 
     $messagePlaceHolders = [
         //'{{release_path}}' => get('release_path'),
-
-        '{{host}}' => get('hostname'),
-        '{{stage}}' => $stage,
-        '{{user}}' => $user,
-        '{{branch}}' => $branch,
-        '{{tag}}' => $tag,
+        '{{host}}'     => get('hostname'),
+        '{{stage}}'    => $stage,
+        '{{user}}'     => $user,
+        '{{branch}}'   => $branch,
+        '{{tag}}'      => $tag,
         '{{app_name}}' => isset($config['app']) ? $config['app'] : 'app-name',
     ];
+
     $config['message'] = strtr($config['message'], $messagePlaceHolders);
 
     $urlParams = [
