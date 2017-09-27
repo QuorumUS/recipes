@@ -24,7 +24,7 @@ task('deploy:slack', function () {
 
     cd('{{release_path}}');
     $revision = trim(run('git log -n 1 --format="%h"'));
-    $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs')->toString();
+    $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs');
     $branch = null;
 
     if (input()->hasOption('branch')) {
