@@ -25,6 +25,7 @@ task('deploy:slack', function () {
     cd('{{release_path}}');
     $revision = trim(run('git log -n 1 --format="%h"'));
     $stage = run('cat .env | grep APP_ENV | cut -d "=" -f 2 | xargs');
+    $appname = isset($config['app']) ? $config['app'] : basename(getcwd());
     $branch = null;
 
     if (input()->hasOption('branch')) {
@@ -63,8 +64,8 @@ task('deploy:slack', function () {
                 'color' => '#7CD197',
                 'fields' => [
                     [
-                        'title' => 'User',
-                        'value' => $user,
+                        'title' => 'App',
+                        'value' => $appname,
                         'short' => true,
                     ],
                     [
@@ -107,7 +108,7 @@ task('deploy:slack', function () {
         '{{user}}'     => $user,
         '{{branch}}'   => $branch,
         '{{tag}}'      => $tag,
-        '{{app_name}}' => isset($config['app']) ? $config['app'] : 'app-name',
+        '{{app_name}}' => $appname,
     ];
 
     $config['message'] = strtr($config['message'], $messagePlaceHolders);
