@@ -138,8 +138,17 @@ task('deploy:slack', function () {
         $urlParams['attachments'] = json_encode($config['attachments']);
     }
 
-    $url = 'https://slack.com/api/chat.postMessage?' . http_build_query($urlParams);
-    $result = @file_get_contents($url);
+    $opts = array(
+        'http' =>
+        array(
+            'method'  => 'POST',
+            'content' => http_build_query($urlParams)
+        )
+    );
+
+    $context  = stream_context_create($opts);
+    $url = 'https://slack.com/api/chat.postMessage';
+    $result = @file_get_contents($url, false, $context);
 
     if (!$result) {
         throw new \RuntimeException($php_errormsg);
