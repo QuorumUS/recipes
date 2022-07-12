@@ -9,7 +9,6 @@
         "deployment",
         "cachetool",
         "cloudflare",
-        "newrelic",
         "slack",
         "hipchat",
         "rabbit",

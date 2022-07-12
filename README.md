@@ -26,7 +26,6 @@ require 'recipe/slack.php';
 | cachetool  | [read](docs/cachetool.md)  | `require 'recipe/cachetool.php';`
 | cloudflare | [read](docs/cloudflare.md) | `require 'recipe/cloudflare.php';`
 | hipchat    | [read](docs/hipchat.md)    | `require 'recipe/hipchat.php';`
-| newrelic   | [read](docs/newrelic.md)   | `require 'recipe/newrelic.php';`
 | npm        | [read](docs/npm.md)        | `require 'recipe/npm.php';`
 | phinx      | [read](docs/phinx.md)      | `require 'recipe/phinx.php'`
 | rabbit     | [read](docs/rabbit.md)     | `require 'recipe/rabbit.php';`
